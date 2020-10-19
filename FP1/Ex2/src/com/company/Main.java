@@ -9,7 +9,7 @@ import java.net.Socket;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // write your code here
         ServerSocket serverSocket = null;
         PrintWriter out = null;
@@ -27,19 +27,33 @@ public class Main {
 
         try {
             clientSocket = serverSocket.accept();
-            while (clientSocket.isConnected()) {
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                String message = in.readLine();
-                System.out.println("Mensagem do Cliente: " + message);
-                out.println("" + serverSocket.getLocalSocketAddress().toString() + ":" + clientSocket.getLocalAddress().toString() + ":" + message);
-            }
-            out.close();
-            in.close();
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
         } catch (IOException e) {
             System.out.println("Accept failed!");
             System.exit(1);
         }
 
+        try {
+            while (clientSocket.isConnected()) {
+                String message = null;
+                message = in.readLine();
+                System.out.println("Mensagem do Cliente: " + message);
+                if (message.equals("QUIT")) {
+                    break;
+                }
+                out.println("" + serverSocket.getLocalSocketAddress().toString() + ":" + clientSocket.getLocalAddress().toString() + ":" + message);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            in.close();
+            out.close();
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

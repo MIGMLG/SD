@@ -32,6 +32,9 @@ public class Main {
 
         while ((userInput = stdIn.readLine()) != null){
             out.println(userInput);
+            if(userInput.equals("QUIT")) {
+                break;
+            }
             System.out.println("Echo: " + in.readLine());
         }
 
