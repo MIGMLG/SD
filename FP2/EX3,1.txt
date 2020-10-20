@@ -1,0 +1,2 @@
+telnet localhost 80
+GET /dashboard/index.html
