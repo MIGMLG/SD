@@ -35,14 +35,13 @@ public class Main {
         }
 
         try {
-            while (clientSocket.isConnected()) {
-                String message = null;
-                message = in.readLine();
+            String message = null;
+            while ((message = in.readLine()) != null) {
                 System.out.println("Mensagem do Cliente: " + message);
                 if (message.equals("QUIT")) {
                     break;
                 }
-                out.println("" + serverSocket.getLocalSocketAddress().toString() + ":" + clientSocket.getLocalAddress().toString() + ":" + message);
+                out.println("localhost" + ":" + clientSocket.getLocalAddress().toString() + ":" + message);
             }
         } catch (IOException e) {
             e.printStackTrace();
