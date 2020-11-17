@@ -38,14 +38,9 @@ public class PrinterThread extends Thread{
             while(packet != null){
                 String received = new String(packet.getData());
 
-                if(received.contains(SEND_DATA)) {
-                    System.out.println("" + received);
-                    sendDateTime();
-                } else if(received.contains("Bye")) {
-                    break;
-                }
-                //Debug Code
-                //System.out.println("" + received);
+                System.out.println("" + received);
+                sendDateTime();
+
                 buf = new byte[256];
                 packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
@@ -65,9 +60,9 @@ public class PrinterThread extends Thread{
         buf = formatter.format(date).getBytes();
 
         DatagramPacket packet;
-        packet = new DatagramPacket(buf, buf.length, group, 4446);
+        packet = new DatagramPacket(buf, buf.length, group, 4447);
         try {
-            Thread.sleep(5000);
+            Thread.sleep(5);
             socket.send(packet);
         } catch (IOException e) {
             System.out.println(e.getMessage());

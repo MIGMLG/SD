@@ -12,7 +12,7 @@ public class AwaitResponseThread extends Thread{
         super.run();
         MulticastSocket socket = null;
         try {
-            socket = new MulticastSocket(4446);
+            socket = new MulticastSocket(4447);
             DatagramPacket packet;
             InetAddress group = InetAddress.getByName("230.0.0.1");
             socket.joinGroup(group);
@@ -20,12 +20,13 @@ public class AwaitResponseThread extends Thread{
             byte[] buf = new byte[256];
             packet = new DatagramPacket(buf, buf.length);
             socket.receive(packet);
+            System.out.println("Client: " + packet.getAddress() + ":" + packet.getPort());
 
             String received = new String(packet.getData());
             System.out.println("" + received);
-            if(received.contains("Bye")) {
-                interrupt();
-            }
+
+            socket.leaveGroup(group);
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
