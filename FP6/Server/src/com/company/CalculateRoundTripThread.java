@@ -3,7 +3,7 @@ package com.company;
 import java.io.IOException;
 import java.net.*;
 
-public class CalculateRoundTripThread extends Thread{
+public class CalculateRoundTripThread extends Thread {
 
     private DatagramSocket multicastSocket;
 
@@ -17,7 +17,7 @@ public class CalculateRoundTripThread extends Thread{
 
         try {
             byte[] buf = new byte[256];
-            String message = "Send Me Your Data!";
+            String message = "PING!";
             buf = message.getBytes();
             InetAddress group = null;
 
@@ -30,7 +30,7 @@ public class CalculateRoundTripThread extends Thread{
             multicastSocket.send(packet);
 
             group = InetAddress.getByName("230.0.0.1");
-            MulticastSocket socket = new MulticastSocket(4447);
+            MulticastSocket socket = new MulticastSocket(4448);
             socket.joinGroup(group);
 
             buf = new byte[256];

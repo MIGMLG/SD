@@ -6,9 +6,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-public class PrinterThread extends Thread {
+public class ClientThread extends Thread {
 
     private MulticastSocket socket;
     private DatagramPacket packet;
@@ -19,9 +18,9 @@ public class PrinterThread extends Thread {
     private static final String SEND_DATA = "Send Me Your Data!";
     private static final String SEND_PING = "PING!";
 
-    public PrinterThread() throws IOException {
+    public ClientThread() throws IOException {
         super("PrinterThread");
-        this.socket = new MulticastSocket(4446);
+        this.socket = new MulticastSocket(4449);
         systemDate = new SystemDate();
         formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
     }
@@ -41,16 +40,15 @@ public class PrinterThread extends Thread {
                 String received = new String(packet.getData());
 
                 if (received.contains(SEND_DATA)) {
-                    System.out.println("Request Received 1 : " + received);
+                    System.out.println("Request Received 2 : " + received);
                     sendDateTime();
                 } else if (received.contains(SEND_PING)) {
-                    System.out.println("Ping Received 1 : " + received);
+                    System.out.println("Ping Received 2 : " + received);
                     sendPing();
                 } else {
-                    System.out.println("Set SystemDate 1 : " + received);
+                    System.out.println("Set SystemDate 2 : " + received);
                     systemDate.setDate(formatter.parse(received));
-                    System.out.println("Get SystemDate 1 : " + systemDate.getDate());
-                    System.exit(0);
+                    System.out.println("Get SystemDate 2 : " + systemDate.getDate());
                 }
 
                 buf = new byte[256];
@@ -72,7 +70,7 @@ public class PrinterThread extends Thread {
         DatagramPacket packet;
         packet = new DatagramPacket(buf, buf.length, group, 4447);
         try {
-            Thread.sleep(5);
+            Thread.sleep(500);
             socket.send(packet);
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -92,5 +90,4 @@ public class PrinterThread extends Thread {
             System.out.println(e.getMessage());
         }
     }
-
 }
