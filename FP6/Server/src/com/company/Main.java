@@ -2,6 +2,7 @@ package com.company;
 
 import java.io.IOException;
 import java.net.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,55 +10,37 @@ import java.util.List;
 
 public class Main {
 
-    public static int sumOfRoundTripTimes = 0;
     public static List<Client> clientList;
-
-    private static DatagramSocket multicastSocket = null;
     private static int roundTripTime = 0;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // write your code here
-        multicastSocket = new DatagramSocket(4445);
-        AwaitResponseThread responseThread;
-        roundTripTime = calculateRoundTrip();
-        ClientThread clientThread  = new ClientThread();
+        ClientThread clientThread = new ClientThread();
         clientThread.start();
-        responseThread = new AwaitResponseThread();
-        responseThread.start();
+        Thread.sleep(1000);
+        System.out.println("---------------------------------------------------");
+        System.out.println("Pedido Enviado aos Clientes");
         sendDateTimeRequest();
-        Thread.sleep(10000);
-        updateDates();
-        Thread.sleep(10000);
-        responseThread.interrupt();
-        clientThread.interrupt();
-        System.exit(0);
-    }
-
-    public static int calculateRoundTrip() throws InterruptedException, IOException {
+        System.out.println("---------------------------------------------------");
+        System.out.println("Resposta dos Clientes : ");
+        awaitResponse();
+        System.out.println("---------------------------------------------------");
+        System.out.println("Calculo Round Trip Time : ");
         Thread.sleep(5000);
-
-        int countPacketsLosted = 0;
-
-        for (int i = 0; i < 10; i++) {
-            CalculateRoundTripThread tripThread = new CalculateRoundTripThread(multicastSocket);
-            tripThread.start();
-            Thread.sleep(5000);
-            if (tripThread.isAlive()) {
-                tripThread.interrupt();
-                countPacketsLosted++;
-            }
-        }
-
-        System.out.println("RTT: " + (sumOfRoundTripTimes / 10) + "ms!");
-        System.out.println("Pacotes Perdidos: " + countPacketsLosted);
-        return (sumOfRoundTripTimes / 10);
+        roundTripTime = calculateRoundTrip();
+        Thread.sleep(5000);
+        System.out.println("---------------------------------------------------");
+        System.out.println("Calculo de Atualização de Datas : ");
+        updateDates();
+        System.out.println("---------------------------------------------------");
     }
 
-    public static void sendDateTimeRequest() throws InterruptedException {
-        byte[] buf = new byte[256];
+    public static void sendDateTimeRequest() throws IOException {
+        MulticastSocket multicastSocket = new MulticastSocket(4445);
+
+        byte[] buf;
         String message = "Send Me Your Data!";
         buf = message.getBytes();
-        Thread.sleep(5000);
         InetAddress group = null;
         try {
             group = InetAddress.getByName("230.0.0.1");
@@ -66,25 +49,97 @@ public class Main {
         }
         DatagramPacket packet;
         packet = new DatagramPacket(buf, buf.length, group, 4446);
-        DatagramPacket packetServer = new DatagramPacket(buf, buf.length, group,4449);
+        DatagramPacket packetServer = new DatagramPacket(buf, buf.length, group, 4449);
         try {
             multicastSocket.send(packet);
             multicastSocket.send(packetServer);
+            multicastSocket.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public static void updateDates() {
+    public static void awaitResponse() throws SocketException {
+        Main.clientList = new ArrayList<>();
+        DatagramSocket socket = new DatagramSocket(4445);
+        DatagramPacket packet;
 
-        System.out.println("Size: " + clientList.size());
+        while (true) {
+            try {
+                byte[] buf = new byte[256];
+                packet = new DatagramPacket(buf, buf.length);
+                socket.setSoTimeout(5000);
+                socket.receive(packet);
+                String received = new String(packet.getData());
+                Client client = new Client(packet.getAddress().toString().substring(1), packet.getPort(), received);
+                Main.clientList.add(client);
+
+                System.out.println("- Client on Await : " + client.getAddress() + ":" + client.getPort());
+                System.out.println("- Client on Await : " + received);
+
+
+            } catch (IOException | ParseException e) {
+                socket.close();
+                System.out.println("Socket Request Hour Fechado!");
+                break;
+            }
+
+        }
+    }
+
+    public static int calculateRoundTrip() {
+        int countPacketsLosted = 0;
+        int sumOfRoundTripTimes = 0;
+
+        for (int i = 0; i < clientList.size(); i++) {
+            Client client = clientList.get(i);
+
+            try {
+                byte[] buf;
+                buf = "PING!".getBytes();
+                InetAddress address = null;
+                address = InetAddress.getByName(client.getAddress());
+
+                DatagramPacket packet;
+                packet = new DatagramPacket(buf, buf.length, address, client.getPort());
+
+                DatagramSocket socket;
+                socket = new DatagramSocket(4445);
+
+                long startTime = System.currentTimeMillis();
+                socket.send(packet);
+
+                buf = new byte[256];
+                packet = new DatagramPacket(buf, buf.length);
+                socket.setSoTimeout(5000);
+                socket.receive(packet);
+
+                long endTime = System.currentTimeMillis();
+
+                sumOfRoundTripTimes += (endTime - startTime);
+                socket.close();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                countPacketsLosted++;
+                System.out.println("Socket Ping Timed Out!");
+            }
+        }
+
+        System.out.println("RTT: " + (sumOfRoundTripTimes / clientList.size()) + "ms!");
+        System.out.println("Pacotes Perdidos: " + countPacketsLosted);
+        return (sumOfRoundTripTimes / clientList.size());
+    }
+
+    public static void updateDates() {
+        System.out.println("Número de clientes : " + clientList.size());
 
         long sum = 0;
 
         for (int i = 0; i < clientList.size(); i++) {
             Client client = clientList.get(i);
             sum += client.getDate().getTime();
-            System.out.println("Client " + i + " : " + client.getPort());
+            System.out.println("Cliente " + (i + 1) + " : " + client.getPort());
         }
 
         long avg = sum / clientList.size();
@@ -92,6 +147,8 @@ public class Main {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
         Date date = new Date(finalTime);
+
+        System.out.println("Date final: " + date);
 
         for (int i = 0; i < clientList.size(); i++) {
             sendNewDate(formatter.format(date), clientList.get(i).getAddress(), clientList.get(i).getPort());
@@ -101,17 +158,18 @@ public class Main {
     }
 
     public static void sendNewDate(String date, String address, int port) {
-
-        byte[] buf = new byte[256];
+        byte[] buf;
         buf = date.getBytes();
 
         try {
-            InetAddress group = InetAddress.getByName(address);
+            InetAddress clientAddress = InetAddress.getByName(address);
 
             DatagramPacket packet;
-            packet = new DatagramPacket(buf, buf.length, group, port);
+            packet = new DatagramPacket(buf, buf.length, clientAddress, port);
 
-            multicastSocket.send(packet);
+            DatagramSocket socket = new DatagramSocket(4445);
+            socket.send(packet);
+            socket.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

@@ -5,10 +5,10 @@ import java.net.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-public class ClientThread extends Thread {
+public class ExecutionThread extends Thread {
 
     private static DatagramSocket socket;
-    private static final int PORT = 4449;
+    private static final int PORT = 4446;
 
     private static final String SEND_DATA = "Send Me Your Data!";
     private static final String SEND_PING = "PING!";
@@ -19,7 +19,7 @@ public class ClientThread extends Thread {
     private SimpleDateFormat formatter;
 
 
-    public ClientThread() {
+    public ExecutionThread() {
         super();
         systemDate = new SystemDate();
         formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
@@ -43,10 +43,14 @@ public class ClientThread extends Thread {
 
             serverAddress = packet.getAddress().toString().substring(1);
             serverPort = packet.getPort();
+            System.out.println("---------------------------------------------------");
+            System.out.println("Multicast Date Request: ");
+            System.out.println("Address: " + serverAddress + " Port: " + serverPort);
 
             String received = new String(packet.getData());
 
             if (received.contains(SEND_DATA)) {
+                System.out.println("Request Received 1 : " + received);
                 multicastSocket.leaveGroup(group);
                 multicastSocket.close();
                 socket = new DatagramSocket(PORT);
@@ -61,13 +65,15 @@ public class ClientThread extends Thread {
             while (packet != null) {
                 received = new String(packet.getData());
                 if (received.contains(SEND_PING)) {
+                    System.out.println("---------------------------------------------------");
+                    System.out.println("Ping Received 1 : " + received);
                     sendPing();
                 } else {
-                    Thread.sleep(1000);
+                    System.out.println("---------------------------------------------------");
                     System.out.println("Definir relogio: ");
-                    System.out.println("Set SystemDate Internal : " + received);
+                    System.out.println("Set SystemDate 1 : " + received);
                     systemDate.setDate(formatter.parse(received));
-                    System.out.println("Get SystemDate Internal : " + systemDate.getDate());
+                    System.out.println("Get SystemDate 1 : " + systemDate.getDate());
                     System.out.println("---------------------------------------------------");
                     socket.close();
                     System.exit(0);
@@ -88,7 +94,7 @@ public class ClientThread extends Thread {
     }
 
     private void sendDateTime() throws UnknownHostException {
-        byte[] buf = new byte[256];
+        byte[] buf;
         buf = formatter.format(systemDate.getDate()).getBytes();
         InetAddress address = InetAddress.getByName(serverAddress);
 
@@ -103,7 +109,7 @@ public class ClientThread extends Thread {
     }
 
     private void sendPing() throws InterruptedException, UnknownHostException {
-        byte[] buf = new byte[256];
+        byte[] buf;
         buf = SEND_PING.getBytes();
         InetAddress address = InetAddress.getByName(serverAddress);
 
