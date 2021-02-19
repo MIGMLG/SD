@@ -1,0 +1,73 @@
+A classe Socket
+◦ 1) Criar um socket
+◦ Se o processo é um cliente:
+import java.net.*;
+import java.io.*;
+Socket meuCliente = null;
+try {
+meuCliente = new Socket (“host”, portNumber);
+} catch (IOException e){
+System.out.println( e.getMessage());
+}
+
+A classe Socket
+◦ 1) Criar um socket
+◦ Se o processo é um servidor:
+...
+ServerSocket meuServidor = null;
+try {
+meuServidor = new ServerSocket (portNumber);
+} catch (IOException e) { System.out.println( e.getMessage()); }
+Socket sServidor = null
+try {
+sServidor = meuServidor.accept();*
+} catch (IOException e) { System.out.println( e.getMessage()); }
+
+
+A classe Socket
+◦ 2) Criar uma OutputStream
+◦ No cliente
+...
+PrintWriter os = null;
+try {
+os = new PrintWriter(a) ( meuCliente.getOutputStream()(b) , true);
+os.println ( “Olá, eu sou o cliente” );
+} catch (IOException e) {
+System.out.println( e.getMessage());
+}
+(a) PrintWriter (OutputStream out, boolean autoFlush); – converte caracteres em bytes
+(b) OutputStream getOutputStream() throws IOException; – método da classe Socket
+
+◦ A classe Socket
+◦ 2) Criar uma OutputStream
+◦ No servidor
+...
+os = new PrintWriter (sServidor.getOutputStream(), true);
+...
+
+
+3) Criar uma InputStream
+◦ No cliente
+BufferedReader is = null;
+try {
+is = new BufferedReader (new InputStreamReader (meuCliente.getInputStream()) );
+is.readLine();
+} catch ( ....
+
+A classe Socket
+◦ 3) Criar uma InputStream
+◦ No servidor
+...
+is = new BufferedReader (new InputStreamReader (sServidor.getInputStream()));
+...
+
+
+4) Fechar um Socket
+1º fechar as streams
+try {
+is.close();
+os.close();
+// fechar os sockets
+meuCliente.close(); // no cliente
+sServidor.close(); // no servidor
+} catch (IOException e) {...} ...

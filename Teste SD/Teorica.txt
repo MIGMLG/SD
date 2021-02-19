@@ -1,0 +1,38 @@
+GRUPO III
+
+-> Questão III.1: Comente, por palavras suas, a seguinte frase: “Muitos developers de Sistemas
+Distribuídos Modernos usam muitas vezes o adjetivo “escalável” sem tornarem claro o porquê
+dos seus Sistemas serem assim considerados”, indicando os principais componentes a
+considerar num Sistema Distribuído verdadeiramente Escalável.
+
+Um sistema pode ser verdadeiramente escalavel quando se mantém eficiente à medida que são adicionados mais recuros e utilizadores (escalabilidade de tamanho),
+quando continua a funcionar de forma eficiente, mesmo que a posição entre utilizadores e os recursos varie, isto é em relação à localização
+geográfica (escalabilidade geográfica), e quando o esforço para administrar o sistema ainda é baixo. Estes developers não tornam claro o porque
+dos sistemas serem assim considerados, pois so conseguem comprovar escalabilidade de tamanho.
+
+-> Questão III.2: Qual a importância da Virtualização no desenvolvimento dos Sistemas
+Distribuídos Modernos?
+
+A virtualização lida com a extensão ou susbtituição de interfaces existentes para imitar o comportamento de outro sistema. 
+Ela é importante no desenvolvimento de sistemas distribuidos modernos, pois o Hardware muda mais ràpido que o software, 
+tem mais facilidade de portabilidade e migração de código e tem maior isolamento de 
+componentes com falha ou ataques.
+
+Grupo IV
+
+-> Questão IV.1: Comente, por palavras suas, a seguinte frase: “A replicação de componentes
+num sistema distribuído introduz um problema de consistência”, indicando duas formas de
+resolução e as principais diferenças entre si.
+
+A afirmação e verdadeira, pois a replicação consiste em criar varias cópias do sistema, o que 
+implica um esforço para manter a consistência, e, a modificação de um cópia a torna-a diferente das restantes.
+Para resolver este problema, podemos adotar medidas de gestão de replicas, por exemplo, pode-se posicionar servidores de réplicas,
+Encontrar as melhores localizações para colocar um servidor que pode ser um data store, e Posicionar conteúdo,
+isto é escolher os melhores servidores para colocar o conteúdo.
+
+-> Questão IV.2: Comente, por palavras suas, a seguinte frase: “Num Sistema Distribuído, a
+segurança decorre da combinação da disponibilidade, da integridade e da confidencialidade”.
+
+A afirmação está correta, pois num sistema distribuido, confidencialidade tem por objetivo proteger a informação intercambiada, prevenindo-a de acessos não autorizados.
+A integridade garante a veracidade da informação, protegendo-a de modificações não autorizadas, e a disponibilidade tem como objetivo prevenir interrupções
+do serviço, mantendo assim o sitema sempre disponível a operações sem interrupções.
